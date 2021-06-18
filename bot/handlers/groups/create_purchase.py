@@ -3,12 +3,7 @@ from aiogram import types
 from loader import dp
 from aiogram.dispatcher import FSMContext
 from keyboards.inline.CardsButtons import CreatePurchase
-from aiogram.dispatcher.filters.state import StatesGroup, State
-
-
-class Form(StatesGroup):
-    title = State()
-    cost = State()
+from states.Form_for_create_purchase import Form
 
 
 @dp.message_handler(commands="create_purchase")

@@ -1,7 +1,6 @@
 
 from aiogram import types
 from loader import dp
-
 from keyboards.inline.CardsButtons import CreatePurchase
 
 
