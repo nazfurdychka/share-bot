@@ -11,10 +11,13 @@ class DataBase:
         self.client = pymongo.MongoClient(
             f"mongodb+srv://{username}:{password}@share-bot.pqplb.mongodb.net/myFirstDatabase?retryWrites=true"
             f"&w=majority")
-        # self.users = client.users
 
     def add_user(self, user: User):
         self.client.Users.user.insert_one(vars(user))
 
     def find_user_by_telegram_id(self, user_id: int):
         return self.client.Users.user.find_one({"user_id": user_id})
+
+    def add_user_card(self, user_id: int, card: int, bank: str = None):
+        self.client.Users.user.update_one({"user_id": user_id}, {"$set": {"cards."+str(card): bank}})
+
