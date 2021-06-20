@@ -1,9 +1,7 @@
 
 from aiogram import types
 from loader import dp
-from keyboards.inline.CardsButtons import CardList
-from keyboards.inline.CardsButtons import EditButton
-from keyboards.inline.CardsButtons import UserCard
+from keyboards.inline.CardsButtons import CardList, EditButton, UserCard
 
 
 @dp.callback_query_handler(text="edit_cards")
