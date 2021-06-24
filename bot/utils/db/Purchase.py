@@ -3,11 +3,11 @@ import pytz
 
 
 class Purchase:
-    def __init__(self, title, buyers, payers, amount):
+    def __init__(self, title, amount):
         self.title = title
         self.date = Purchase._get_current_date()
-        self.buyers = buyers
-        self.payers = payers
+        self.buyers = dict()
+        self.payers = []
         self.amount = amount
 
     @staticmethod
@@ -16,4 +16,4 @@ class Purchase:
         timezone = pytz.timezone(tz)
 
         date = datetime.now(tz=timezone)
-        return date.strftime(fmt="%m/%d/%Y, %H:%M:%S")  # 12/24/2018, 04:59:31
+        return date.strftime("%d/%m/%Y, %H:%M:%S")  # 12/24/2018, 04:59:31
