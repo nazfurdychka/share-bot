@@ -1,6 +1,8 @@
 import pymongo
-from . import User
+import loader
+from .User import User
 from .. import config
+# from ... import loader
 
 username = config.DATABASE_USERNAME
 password = config.DATABASE_PASSWORD
@@ -31,9 +33,43 @@ class DataBase:
 
     def get_user_cards(self, user_id: int) -> dict:
         try:
-            return self.users.find_one({"user_id": user_id}).get("cards")
+            # return self.users.find_one({"user_id": user_id}).get("cards")
+            return self.users.find_one({"user_id": user_id}, {"username": True, "first_name": True, "last_name": True})
         except AttributeError:
             return dict()
 
-    def get_users_from_group(self, group_id: int) -> pymongo.cursor:
-        pass
+    def get_cards_from_group(self, group_id: int): # -> Dict[int, Dict[int, str]]:
+        list_of_users_object_id = (self._get_users_with_cards_from_group(group_id))[0]
+        list_of_user_object_user = (self._get_users_with_cards_from_group(group_id))[1]
+        list_of_users = dict()
+        for i, user_object_id in enumerate(list_of_users_object_id):
+            user = self.users.find_one({"_id": user_object_id}, {"user_id": True, "cards": True})
+            user_info = list_of_user_object_user[i]
+            user_cards = user["cards"]
+            list_of_users[user_info] = user_cards
+        return list_of_users
+
+    def _get_users_with_cards_from_group(self, group_id: int):  # -> list[int]:
+        list_of_users_in_group = list()
+        user_object_user = list()
+        for user in self.users.find({"cards": {"$ne": {}}}, {"_id": True, "user_id": True, "first_name": True,
+                                                             "last_name": True}):
+            user_id = user["user_id"]
+            user_object_id = user["_id"]
+            user_last_name = user["last_name"]
+            user_first_name = user["first_name"]
+
+            if loader.bot.get_chat_member(chat_id=group_id, user_id=user_id):
+                user_object_user.append(str(user_first_name) + " " + str(user_last_name))
+                list_of_users_in_group.append(user_object_id)
+        return [list_of_users_in_group, user_object_user]
+
+    def get_user_name_from_group(self, group_id: int):
+        names = self._get_users_with_cards_from_group(group_id)[1]
+        ids = self._get_users_with_cards_from_group(group_id)[0]
+        k = list(zip(names, ids))
+        return k
+
+
+
+

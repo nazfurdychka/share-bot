@@ -27,3 +27,11 @@ async def test(message: types.Message):
     cards = db.get_user_cards(message.from_user.id)
     result = [(card, bank) for card, bank in cards.items()]
     print(result)
+
+
+@dp.message_handler(commands="check")
+async def check(message: types.Message):
+    print("check")
+    cards = db.get_user_cards(message.from_user.id)
+    result = [(card, bank) for card, bank in cards.items()]
+    await message.answer(str(result))
