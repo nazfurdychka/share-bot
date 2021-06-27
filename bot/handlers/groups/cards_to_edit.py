@@ -1,6 +1,6 @@
 
 from aiogram import types
-from aiogram.dispatcher import filters, FSMContext
+from aiogram.dispatcher import filters
 from loader import dp, db
 
 from bot.keyboards.inline.CardsButtons.CardList import CardList
@@ -26,8 +26,13 @@ async def information_about_cards(call: types.CallbackQuery):
 
 @dp.callback_query_handler(filters.Regexp(MANAGE_CARDS))
 async def information_about_cards(call: types.CallbackQuery):
-    keyboard = UserSCard().keyboard
-    await call.message.edit_text(text="Username and list")
+    user_id = call.data.split()[1]
+    keyboard = UserSCard(user_id=user_id).keyboard
+    user_cards = db.get_user_cards(user_id=int(user_id))
+    list_of_user_cards = list()
+    for k, v in user_cards.items():
+        list_of_user_cards.append("{:<8} {:<15}".format(k, v))
+    await call.message.edit_text(text="".join(list_of_user_cards))
     await call.message.edit_reply_markup(reply_markup=keyboard)
 
 

@@ -33,8 +33,7 @@ class DataBase:
 
     def get_user_cards(self, user_id: int) -> dict:
         try:
-            # return self.users.find_one({"user_id": user_id}).get("cards")
-            return self.users.find_one({"user_id": user_id}, {"username": True, "first_name": True, "last_name": True})
+            return self.users.find_one({"user_id": user_id}, {"cards": True}).get("cards")
         except AttributeError:
             return dict()
 
@@ -52,6 +51,7 @@ class DataBase:
     def _get_users_with_cards_from_group(self, group_id: int):  # -> list[int]:
         list_of_users_in_group = list()
         user_object_user = list()
+        list_of_users_id = list()
         for user in self.users.find({"cards": {"$ne": {}}}, {"_id": True, "user_id": True, "first_name": True,
                                                              "last_name": True}):
             user_id = user["user_id"]
@@ -62,11 +62,12 @@ class DataBase:
             if loader.bot.get_chat_member(chat_id=group_id, user_id=user_id):
                 user_object_user.append(str(user_first_name) + " " + str(user_last_name))
                 list_of_users_in_group.append(user_object_id)
-        return [list_of_users_in_group, user_object_user]
+                list_of_users_id.append(user_id)
+        return [list_of_users_in_group, user_object_user, list_of_users_id]
 
     def get_user_name_from_group(self, group_id: int):
         names = self._get_users_with_cards_from_group(group_id)[1]
-        ids = self._get_users_with_cards_from_group(group_id)[0]
+        ids = self._get_users_with_cards_from_group(group_id)[2]
         k = list(zip(names, ids))
         return k
 
