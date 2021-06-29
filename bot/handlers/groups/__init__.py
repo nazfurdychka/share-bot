@@ -9,3 +9,4 @@ from . import delete_purchase
 from . import added_to_group
 from . import get_all_purchases_from_group
 from . import show_purchase
+from . import add_user_card_to_db_command
