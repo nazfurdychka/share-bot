@@ -14,7 +14,7 @@ from bot.utils.misc.regex import ADD_CARD, DELETE_CARD, DELETE_CARD_WINDOW, VALI
 @dp.callback_query_handler(filters.Regexp(ADD_CARD))
 async def information_about_cards(call: types.CallbackQuery, state: FSMContext):
     user_id = call.data.split()[1]
-    await call.message.edit_text(text="Enter card name and card bank you want to add:")
+    await call.message.edit_text(text="Enter card number and card bank you want to add (example: XXXX XXXX XXXX XXXX bank name):")
     await state.update_data(user_id=user_id)
     await Form.card.set()
 
@@ -25,15 +25,14 @@ async def information_about_cards(message: types.Message, state: FSMContext):
     if match:
         card = match.group(1)
         bank = match.group(3)
-        await state.update_data(card=card, bank=bank)
         data = await state.get_data()
-        card_number = data["card"].replace(" ", "")
+        card_number = card.replace(" ", "")
 
-        db.add_user_card(user_id=int(data["user_id"]), card=int(card_number), bank=data["bank"])
+        db.add_user_card(user_id=int(data["user_id"]), card=int(card_number), bank=bank)
         output, keyboard = edit_button_window(chat_id=message.chat.id)
         await message.answer(text="Card list:\n" + output, reply_markup=keyboard, parse_mode="markdown")
     else:
-        await message.answer("Sorry, this isn't valid card number")
+        await message.answer("Sorry, this isn't a valid card number. Please, check if you wrote everything correctly. Click /add_card to try again")
     await state.finish()
 
 

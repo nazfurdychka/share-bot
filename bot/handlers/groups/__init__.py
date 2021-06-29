@@ -6,3 +6,4 @@ from . import join_as_buyer
 from . import join_as_payer
 from . import calculate
 from . import delete_purchase
+from . import add_user_card_to_db_command

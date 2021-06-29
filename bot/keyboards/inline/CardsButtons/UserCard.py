@@ -2,7 +2,7 @@
 from aiogram import types
 
 
-class UserSCard:
+class UserCard:
     def __init__(self, user_id):
         self.user_id = user_id
         manage_card_buttons = [
