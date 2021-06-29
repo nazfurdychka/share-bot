@@ -1,4 +1,4 @@
-from aiogram import executor
+from aiogram import executor, types
 
 from loader import dp
 import utils, middlewares, filters, handlers

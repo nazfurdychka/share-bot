@@ -10,10 +10,9 @@ def make_user_from_msg(msg: Message) -> User:
     user_id = msg.from_user.id
     cards = dict()
     username = msg.from_user.username
-    first_name = msg.from_user.first_name
-    last_name = msg.from_user.last_name
+    full_name = msg.from_user.full_name
     list_of_purchases = []
-    user = User(user_id, cards, username, first_name, last_name, list_of_purchases)
+    user = User(user_id, cards, username, full_name, list_of_purchases)
     return user
 
 
@@ -24,9 +23,11 @@ def get_card_from_text(text: str) -> str:
         return card
 
 
-def get_title_and_value_from_text(text: str) -> tuple[str, int]:
+def get_title_and_value_from_text(text: str):
     match = re.match(VALUE_AND_TITLE, text)
     if match:
         value = int(match.group(1))
         title = match.group(2)
         return title, value
+    else:
+        return None, None

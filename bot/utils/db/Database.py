@@ -18,6 +18,7 @@ class DataBase:
         self._database = self._client.get_database("Database")
         self.users = self._database.get_collection("users")
         self.purchases = self._database.get_collection("purchases")
+        self.groups = self._database.get_collection("groups")
 
     # Methods to work with users
 
@@ -26,12 +27,12 @@ class DataBase:
 
     def find_user_by_telegram_id(self, user_id: int) -> dict:
         try:
-            return self.users.find_one({"user_id": user_id}, {"username": True, "first_name": True, "last_name": True})
+            return self.users.find_one({"user_id": user_id}, {"username": True, "full_name": True})
         except AttributeError:
             return dict()
 
     # ------------------------------------------------------------------------------------------
-    # Methods to work with user cards
+    # Methods to work with user_id cards
 
     def add_user_card(self, user_id: int, card: int, bank: str = None):
         self.users.update_one({"user_id": user_id}, {"$set": {"cards." + str(card): bank}})
@@ -68,39 +69,62 @@ class DataBase:
         return list_of_users_in_group
 
     # ------------------------------------------------------------------------------------------
+    # Methods to work with groups
+
+    def add_new_group(self, group_id, group_title: str):
+        self.groups.insert_one({"group_id": group_id, "title": group_title, "purchases": []})
+
+    def delete_group(self, group_id: str):
+        purchases = self.groups.find_one({"group_id": group_id}, {"purchases": True})["purchases"]
+        for _, purchase in purchases:   # purchases: [(purchase_title, purchase_id), ...]
+            self.purchases.delete_one({"purchase_id": ObjectId(purchase)})
+        self.groups.delete_one({"group_id": group_id})
+
+    def get_all_purchases_from_group(self, group_id: int):
+        purchases = self.groups.find_one({"group_id": group_id}, {"purchases": True})["purchases"]
+        return purchases
+
+    # ------------------------------------------------------------------------------------------
     # Methods to work with purchases
 
-    def add_purchase(self, title: str, amount: int) -> str:
+    def add_purchase(self, title: str, amount: int, group_id: int):
         purchase = Purchase(title, amount)
-        return str(self.purchases.insert_one(vars(purchase)).inserted_id)
+        purchase_id = str(self.purchases.insert_one(vars(purchase)).inserted_id)
+        self.groups.update_one({"group_id": group_id}, {"$push": {"purchases": [title, purchase_id]}})
+        return purchase_id
 
-    def delete_purchase(self, purchase_id: str):
+    def delete_purchase(self, purchase_id: str, group_id: int = None, title: str = None):
         self.purchases.delete_one({"_id": ObjectId(purchase_id)})
+        if group_id:
+            self.groups.update_one({"group_id": group_id}, {"$pull": {"purchases": [title, purchase_id]}})
 
-    def check_if_user_joined_as_payer(self, user_id: int, purchase_id: str) -> bool:
+    def get_purchase(self, purchase_id: str):
+        return self.purchases.find_one({"_id": ObjectId(purchase_id)})
+
+    # def get_all_purchases_from_group(self, group_id: int):
+    #     purchases = self.groups.find_one({"group_id": group_id}, {"purchases": True})["purchases"]
+    #     return purchases
+
+    def check_if_user_joined_as_payer(self, user_id: tuple[int, str], purchase_id: str) -> bool:
         list_of_payers = self.purchases.find_one({"_id": ObjectId(purchase_id)}, {"payers": True})["payers"]
-        if list_of_payers is None:
-            return False
-        else:
-            return user_id in list_of_payers
+        return list(user_id) in list_of_payers
 
     def check_if_user_joined_as_buyer(self, user_id: int, purchase_id: str) -> bool:
         list_of_buyers = self.purchases.find_one({"_id": ObjectId(purchase_id)})["buyers"]
-        if list_of_buyers is None:
-            return False
-        else:
-            return user_id in list_of_buyers
+        return str(user_id) in list_of_buyers
 
-    def join_to_purchase_as_payer(self, user_id: int, purchase_id: str):
-        self.purchases.update_one({"_id": ObjectId(purchase_id)}, {"$push": {"payers": user_id}})
+    def join_to_purchase_as_payer(self, user: tuple[int, str], purchase_id: str):
+        return self.purchases.update_one({"_id": ObjectId(purchase_id)}, {"$push": {"payers": user}}).upserted_id
 
-    def remove_user_as_payer(self, user_id: int, purchase_id: str):
-        self.purchases.update_one({"_id": ObjectId(purchase_id)}, {"$pull": {"payers": user_id}})
+    def remove_user_as_payer(self, user: tuple[int, str], purchase_id: str):
+        return self.purchases.update_one({"_id": ObjectId(purchase_id)}, {"$pull": {"payers": user}}).upserted_id
 
-    def join_to_purchase_as_buyer(self, user_id: int, amount_of_money_spent: int, purchase_id: str):
-        self.purchases.update_one({"_id": ObjectId(purchase_id)}, {"$set": {"buyers." + str(user_id): amount_of_money_spent}})
+    def join_to_purchase_as_buyer(self, user: tuple[int, str], amount_of_money_spent: int, purchase_id: str):
+        user_id = user[0]
+        full_name = user[1]
+        return self.purchases.update_one({"_id": ObjectId(purchase_id)}, {"$set": {"buyers." + str(user_id): [amount_of_money_spent, full_name]}}).upserted_id
 
     def remove_user_as_buyer(self, user_id: int, purchase_id: str):
-        self.purchases.update_one({"_id": ObjectId(purchase_id)}, {"$unset": {"buyers"+str(user_id): ""}})
+        return self.purchases.update_one({"_id": ObjectId(purchase_id)}, {"$unset": {"buyers."+str(user_id): ""}}).upserted_id
 
     # ------------------------------------------------------------------------------------------
