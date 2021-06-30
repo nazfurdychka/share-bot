@@ -1,12 +1,4 @@
-from . import cards
-from . import cards_to_edit
-from . import user_card_window
-from . import create_purchase
-from . import join_as_buyer
-from . import join_as_payer
-from . import calculate
-from . import delete_purchase
+import bot.handlers.groups.callbacks
+from . import commands
+from . import states_handlers
 from . import added_to_group
-from . import get_all_purchases_from_group
-from . import show_purchase
-from . import add_user_card_to_db_command
