@@ -135,6 +135,9 @@ class DataBase:
     def remove_user_as_buyer(self, telegram_id: int, purchase_id: str):
         return self.purchases.update_one({"_id": ObjectId(purchase_id)}, {"$unset": {"buyers."+str(telegram_id): ""}}).upserted_id
 
+    def get_purchase_amount(self, purchase_id: str) -> int:
+        return self.purchases.find_one({"_id": ObjectId(purchase_id)}, {"amount": True})["amount"]
+
     def get_all_buyers(self, purchase_id: str) -> dict:
         buyers = dict()
         for v in self.purchases.find_one({"_id": ObjectId(purchase_id)})["buyers"].values():
