@@ -2,7 +2,7 @@ import re
 
 from aiogram import types
 from loader import dp
-from bot.keyboards.inline.CardsButtons import CardList, EditButton, UserCard
+from bot.keyboards.inline.CardsButtons import CardList
 from aiogram.dispatcher import filters, FSMContext
 
 from bot.states.form_to_add_a_card import Form
@@ -37,8 +37,8 @@ async def information_about_cards(call: types.CallbackQuery, state: FSMContext):
 async def information_about_cards(message: types.Message, state: FSMContext):
     match = re.match(VALID_CARD, message.text)
     if match:
-        user_id, username, last_name, first_name = int(message.from_user.id), message.from_user.username, message.from_user.last_name, message.from_user.first_name
-        user_object = User(user_id=user_id, username=username, cards=dict(), last_name=last_name, first_name=first_name, list_of_purchases=dict())
+        user_id, username, full_name = int(message.from_user.id), message.from_user.full_name, message.from_user.first_name
+        user_object = User(user_id=user_id, username=username, cards=dict(), full_name=full_name, list_of_purchases=list())
         add_user_card_to_db(card=match.group(1), bank=match.group(3), user_object=user_object, user_id=user_id)
 
         output, keyboard = edit_button_window(chat_id=message.chat.id)

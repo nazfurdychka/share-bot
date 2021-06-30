@@ -31,8 +31,8 @@ async def title(message: types.Message, state: FSMContext):
 
 @dp.message_handler(state=Form.cost)
 async def cost(message: types.Message, state: FSMContext):
-    title = await state.get_data()
-    title = title["title"]
+    data = await state.get_data()
+    title = data["title"]
     try:
         value = int(message.text)
     except ValueError:
