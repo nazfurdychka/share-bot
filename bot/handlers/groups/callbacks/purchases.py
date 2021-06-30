@@ -5,8 +5,8 @@ from aiogram import filters, types
 from bot.keyboards.inline.PurchasesKeyboards.PurchaseKeyboard import CreatePurchase
 from bot.states.FormToJoinAsBuyer import FormToJoinAsBuyer
 from bot.utils.misc.decorators import check_if_user_is_registered
-from bot.utils.misc.additional_functions import make_purchase_text
-from bot.utils.misc.REGULAR_EXPRESSIONS import DELETE_PURCHASE, JOIN_AS_BUYER, JOIN_AS_PAYER, PURCHASE
+from bot.utils.misc.additional_functions import make_purchase_text, calculate
+from bot.utils.misc.REGULAR_EXPRESSIONS import DELETE_PURCHASE, JOIN_AS_BUYER, JOIN_AS_PAYER, PURCHASE, CALCULATE
 
 
 @dp.callback_query_handler(filters.Regexp(PURCHASE))
@@ -68,8 +68,12 @@ async def information_about_cards(call: types.CallbackQuery):
     await call.message.edit_reply_markup(reply_markup=call.message.reply_markup)
 
 
-@dp.callback_query_handler(text="calculate")
-@check_if_user_is_registered
+@dp.callback_query_handler(filters.Regexp(CALCULATE))
 async def information_about_cards(call: types.CallbackQuery):
-    await call.message.edit_text(text="Calculate:")
+    purchase_id = call.data.split()[1]
+    b = db.get_all_buyers(purchase_id=purchase_id)
+    p = db.get_all_payers(purchase_id=purchase_id)
+    a = db.get_purchase_amount(purchase_id=purchase_id)
+    output = calculate(buyers=b, payers=p, amount=a)
+    await call.message.edit_text(text=output, parse_mode="markdown")
     await call.message.edit_reply_markup(reply_markup=call.message.reply_markup)

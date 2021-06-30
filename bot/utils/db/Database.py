@@ -33,7 +33,7 @@ class DataBase:
             return dict()
 
     # ------------------------------------------------------------------------------------------
-    # Methods to work with telegram_id cards
+    # Methods to work with user cards
 
     def add_user_card(self, telegram_id: int, card: int, bank: str = ''):
         self.users.update_one({"telegram_id": telegram_id}, {"$set": {"cards." + str(card): bank}})
@@ -102,7 +102,6 @@ class DataBase:
         return purchase_id
 
     def delete_purchase(self, purchase_id: str, group_id: int = None, title: str = None):
-        print("DATABASE")
         self.purchases.delete_one({"_id": ObjectId(purchase_id)})
         if group_id:
             self.groups.update_one({"group_id": group_id}, {"$pull": {"purchases": [title, purchase_id]}})
@@ -136,4 +135,18 @@ class DataBase:
     def remove_user_as_buyer(self, telegram_id: int, purchase_id: str):
         return self.purchases.update_one({"_id": ObjectId(purchase_id)}, {"$unset": {"buyers."+str(telegram_id): ""}}).upserted_id
 
+    def get_all_buyers(self, purchase_id: str) -> dict:
+        buyers = dict()
+        for v in self.purchases.find_one({"_id": ObjectId(purchase_id)})["buyers"].values():
+            buyers[v[1]] = v[0]
+        return buyers
+
+    def get_all_payers(self, purchase_id: str) -> dict:
+        payers = dict()
+        for i in self.purchases.find_one({"_id": ObjectId(purchase_id)}, {"payers": True})["payers"]:
+            payers[i[1]] = 0
+        return payers
+
+    def get_purchase_amount(self, purchase_id: str) -> int:
+        return self.purchases.find_one({"_id": ObjectId(purchase_id)}, {"amount": True})["amount"]
     # ------------------------------------------------------------------------------------------
