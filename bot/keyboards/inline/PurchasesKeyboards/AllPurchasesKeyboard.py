@@ -5,5 +5,6 @@ from loader import db
 class AllPurchasesKeyboard:
     def __init__(self, group_id: str):
         purchases = db.get_all_purchases_from_group(group_id)
+        self.check = 0 if not purchases else 1
         purchases_buttons = [types.InlineKeyboardButton(text=title, callback_data="purchase "+str(id)) for title, id in purchases]
         self.keyboard = types.InlineKeyboardMarkup().add(*purchases_buttons)

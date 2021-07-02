@@ -16,3 +16,15 @@ def check_if_user_is_registered(func):
             db.add_user(user)
         return func(*args, **kwargs)
     return wrapper
+
+
+def check_if_chat_is_group(func):
+    @wraps(func)
+    async def wrapper(*args, **kwargs):
+        message: types.Message = args[0]
+        if message.chat.type == "group":
+            pass
+        else:
+            await message.answer("Sorry, but this command created for groups, not for {} chat".format(message.chat.type))
+        return await func(*args, **kwargs)
+    return wrapper

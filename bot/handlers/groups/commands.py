@@ -7,7 +7,7 @@ from bot.keyboards.inline.PurchasesKeyboards.PurchaseKeyboard import CreatePurch
 from bot.keyboards.inline.PurchasesKeyboards.AllPurchasesKeyboard import AllPurchasesKeyboard
 from bot.states.FormToCreatePurchase import FormToCreatePurchase
 from bot.states.FormToAddCard import FormToAddCard
-from bot.utils.misc.decorators import check_if_user_is_registered
+from bot.utils.misc.decorators import check_if_user_is_registered, check_if_chat_is_group
 from bot.utils.misc.additional_functions import edit_button_window, make_purchase_text
 from bot.utils.misc.parsers import get_title_and_value_from_text
 from bot.utils.misc.REGULAR_EXPRESSIONS import VALID_CARD
@@ -15,6 +15,7 @@ from bot.utils.misc.REGULAR_EXPRESSIONS import VALID_CARD
 
 @dp.message_handler(commands="manage_cards")
 @check_if_user_is_registered
+@check_if_chat_is_group
 async def information_about_cards(message: types.Message):
     res, keyboard = edit_button_window(chat_id=message.chat.id)
     await message.answer(text="Card list:\n" + res, reply_markup=keyboard, parse_mode="markdown")
@@ -22,6 +23,7 @@ async def information_about_cards(message: types.Message):
 
 @dp.message_handler(commands="add_card")
 @check_if_user_is_registered
+@check_if_chat_is_group
 async def information_about_cards(message: types.Message, state: FSMContext):
     match = re.match(VALID_CARD, message.text.split(maxsplit=1)[1])
     if match:
@@ -40,6 +42,7 @@ async def information_about_cards(message: types.Message, state: FSMContext):
 
 @dp.message_handler(commands="create_purchase")
 @check_if_user_is_registered
+@check_if_chat_is_group
 async def create_purchase(message: types.Message, state: FSMContext):
     title, value = get_title_and_value_from_text(message.text[17:])
     if title:
@@ -54,7 +57,12 @@ async def create_purchase(message: types.Message, state: FSMContext):
 
 @dp.message_handler(commands="get_all_purchases")
 @check_if_user_is_registered
+@check_if_chat_is_group
 async def get_all_purchases_from_group(message: types.Message):
     text = "All purchases:"
-    keyboard = AllPurchasesKeyboard(message.chat.id).keyboard
-    await message.answer(text=text, reply_markup=keyboard)
+    all_purchases = AllPurchasesKeyboard(message.chat.id)
+    if all_purchases.check:
+        keyboard = AllPurchasesKeyboard(message.chat.id).keyboard
+        await message.answer(text=text, reply_markup=keyboard)
+    else:
+        await message.answer(text="No purchases in this group")

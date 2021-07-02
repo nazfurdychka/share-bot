@@ -26,8 +26,6 @@ async def show_purchase(call: types.CallbackQuery):
 @check_if_user_is_registered
 @dp.callback_query_handler(filters.Regexp(DELETE_PURCHASE))
 async def information_about_cards(call: types.CallbackQuery):
-    print("HANDLER")
-    print(call.data)
     purchase_id = call.data.split()[1]
     title = call.data.split(maxsplit=2)[2]
     db.delete_purchase(purchase_id=purchase_id, group_id=call.message.chat.id, title=title)
