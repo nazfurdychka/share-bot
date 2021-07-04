@@ -89,3 +89,12 @@ def make_calculate_text(result: dict) -> str:
     # else:
     #     "Note: *Total cost of the purchase is smaller than amount of money that buyers paid*"
     return output
+
+
+def help_text() -> str:
+    text = "Groups commands: \n" \
+           "/manage_cards - here you can add your cards and see another cards \n" \
+           "/create_purchase - use this command if you want to distribute money \n" \
+           "/get_all_purchases - will help you to get all purchases that you created \n" \
+           "/add_card - if you want me to add your card"
+    return text

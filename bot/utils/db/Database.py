@@ -109,11 +109,7 @@ class DataBase:
     def get_purchase(self, purchase_id: str):
         return self.purchases.find_one({"_id": ObjectId(purchase_id)})
 
-    # def get_all_purchases_from_group(self, group_id: int):
-    #     purchases = self.groups.find_one({"group_id": group_id}, {"purchases": True})["purchases"]
-    #     return purchases
-
-    def check_if_user_joined_as_payer(self, user: tuple[int, str], purchase_id: str) -> bool:
+    def check_if_user_joined_as_payer(self, user, purchase_id: str) -> bool:
         list_of_payers = self.purchases.find_one({"_id": ObjectId(purchase_id)}, {"payers": True})["payers"]
         return list(user) in list_of_payers
 
@@ -121,13 +117,13 @@ class DataBase:
         list_of_buyers = self.purchases.find_one({"_id": ObjectId(purchase_id)})["buyers"]
         return str(telegram_id) in list_of_buyers
 
-    def join_to_purchase_as_payer(self, user: tuple[int, str], purchase_id: str):
+    def join_to_purchase_as_payer(self, user, purchase_id: str):
         return self.purchases.update_one({"_id": ObjectId(purchase_id)}, {"$push": {"payers": user}}).upserted_id
 
-    def remove_user_as_payer(self, user: tuple[int, str], purchase_id: str):
+    def remove_user_as_payer(self, user, purchase_id: str):
         return self.purchases.update_one({"_id": ObjectId(purchase_id)}, {"$pull": {"payers": user}}).upserted_id
 
-    def join_to_purchase_as_buyer(self, user: tuple[int, str], amount_of_money_spent: int, purchase_id: str):
+    def join_to_purchase_as_buyer(self, user, amount_of_money_spent: int, purchase_id: str):
         user_id = user[0]
         full_name = user[1]
         return self.purchases.update_one({"_id": ObjectId(purchase_id)}, {"$set": {"buyers." + str(user_id): [amount_of_money_spent, full_name]}}).upserted_id

@@ -1,5 +1,3 @@
-import re
-
 from aiogram import types
 from loader import dp, db
 from aiogram.dispatcher import filters, FSMContext
@@ -9,13 +7,12 @@ from bot.keyboards.inline.CardsKeyboards.DeleteCardKeyboard import DeleteCard
 from bot.states.FormToAddCard import FormToAddCard
 from bot.utils.misc.decorators import check_if_user_is_registered
 from bot.utils.misc.additional_functions import edit_button_window, user_cards_window
-from bot.utils.misc.REGULAR_EXPRESSIONS import ADD_CARD, VALID_CARD, MANAGE_CARDS, DELETE_CARD_WINDOW, DELETE_CARD
+from bot.utils.misc.REGULAR_EXPRESSIONS import ADD_CARD, MANAGE_CARDS, DELETE_CARD_WINDOW, DELETE_CARD
 
 
 @check_if_user_is_registered
 @dp.callback_query_handler(filters.Regexp(ADD_CARD))
 async def information_about_cards(call: types.CallbackQuery, state: FSMContext):
-    print("Entered")
     if len(call.data.split()) == 2:
         user_id = call.data.split()[1]
     else:
@@ -69,4 +66,3 @@ async def information_about_cards(call: types.CallbackQuery):
 async def information_about_cards(call: types.CallbackQuery):
     keyboard = UsersListKeyboard(call.message.chat.id).keyboard
     await call.message.edit_text(text="Whose card(s) to edit:", reply_markup=keyboard)
-

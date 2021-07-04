@@ -1,14 +1,10 @@
 from aiogram import types
 
 from loader import db, dp
-from bot.utils.db.User import User
-from bot.utils.misc.parsers import make_user_from_msg
+from bot.utils.misc.decorators import check_if_user_is_registered
 
 
 @dp.message_handler(commands="start")
+@check_if_user_is_registered
 async def bot_start(message: types.Message):
-    await message.answer(message.chat.id)
-    # user = make_user_from_msg(message)
-    # if not db.find_user_by_telegram_id(user.telegram_id):
-    #     db.add_user(user)
-    # await message.answer(f"Hello, {message.from_user.full_name}")
+    await message.answer(f"Hello, {message.from_user.full_name}, I'm Sharebot and I can help you to distribute your money when your buy something with somebody.")
