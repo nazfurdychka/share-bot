@@ -42,50 +42,43 @@ def make_purchase_text(purchase_id: str):
 
 
 def calculate(buyers: dict[str, int], payers: list[str], amount: int) -> dict:
-    # if len(buyers.keys()) == 0:
-    #     return "You didn't add buyers and payers, this fields can't be empty"
-    # if len(buyers.keys()) == 0:
-    #     return "You didn't add buyers, this field can't be empty"
-    # if len(payers.keys()) == 0:
-    #     return "You didn't add payers, this field can't be empty"
-    # cnt = [i + 1 for i in range(len(payers.keys()))][-1]
     cnt = len(payers)
-    # buyers_sum = sum(buyers.values())
     d = amount / cnt
     result = dict()
 
     for payer in payers:
         result[payer] = d
-        # payers[key] = d
 
     for payer in payers:
         if payer in buyers:
-            # diff = buyers.get(payer) - result.get(payer)
             diff = result[payer] - buyers[payer]
-            # result[payer] = 0 if diff >= 0 else abs(diff)
             result[payer] = diff
             del buyers[payer]
 
-    for buyer in buyers:
+    for buyer in buyers:\
         result[buyer] = -1 * buyers[buyer]
 
     return result
 
 
 def check_if_purchase_correct(purchase: dict):
-    pass
+    # if res == -2: -> can`t calculate purchase!
+    # elif res == -1: -> can calculate purchase but with some nuances
+    # elif res == 0: -> everything is ok
+    res, output = 0, ""
+    if len(purchase.get("payers")) == 0:
+        res, output = -2, "__Payers__ field is empty! Can`t calculate this purchase!\n"
+    elif len(purchase.get("buyers")) == 0:
+        res, output = -1, "Take into account that __buyers__ field is empty, something may be wrong!\n"
+    elif sum(purchase.get("buyers")) != purchase.get("amount"):
+        res, output = -1, "Please be aware that total cost of the purchase is different from the amount of money that buyers paid!\n"
+    return res, output
 
 
 def make_calculate_text(result: dict) -> str:
     pass
     output = "Calculate: \n"
     for k, v in result.items():
-        output += "\t\t\t" + "`" + k + "`" + " `" + str(v) + "` \n"
+        output += "\t\t\t\t" + "`" + k + '\t' + "`" + " `" + str(v) + "` \n"
 
-    # if buyers_sum > amount:
-    #     output += "Note: *Total cost of the purchase is greater than amount of money that buyers paid*"
-    # elif buyers == amount:
-    #     output += ""
-    # else:
-    #     "Note: *Total cost of the purchase is smaller than amount of money that buyers paid*"
     return output
