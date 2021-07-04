@@ -16,7 +16,7 @@ async def show_purchase_button(call: types.CallbackQuery):
     purchase_id = call.data.split()[1]
     purchase = db.get_purchase(purchase_id)
     if purchase:
-        value, title = purchase["amount"], purchase["title"]
+        value, title = purchase.get("amount"), purchase.get("title")
         keyboard = CreatePurchase(purchase_id, value, title).keyboard
         text = make_purchase_text(purchase_id)
         await call.message.answer(text=text, reply_markup=keyboard, parse_mode="markdown")
@@ -28,8 +28,7 @@ async def show_purchase_button(call: types.CallbackQuery):
 @dp.callback_query_handler(filters.Regexp(DELETE_PURCHASE), state='*')
 async def delete_purchase_button(call: types.CallbackQuery):
     purchase_id = call.data.split()[1]
-    title = call.data.split(maxsplit=2)[2]
-    db.delete_purchase(purchase_id=purchase_id, group_id=call.message.chat.id, title=title)
+    db.delete_purchase(purchase_id=purchase_id, group_id=call.message.chat.id)
     await call.answer("Purchase was deleted!")
     await call.message.edit_text(text="Deleted!")
 
@@ -38,7 +37,7 @@ async def delete_purchase_button(call: types.CallbackQuery):
 @check_if_user_is_registered
 async def join_as_buyer_button(call: types.CallbackQuery, state: FSMContext):
     purchase_id = call.data.split()[1]
-    amount = int(call.data.split()[2])
+    amount = float(call.data.split()[2])
     if db.check_if_user_joined_as_buyer(telegram_id=call.from_user.id, purchase_id=purchase_id):
         db.remove_user_as_buyer(telegram_id=call.from_user.id, purchase_id=purchase_id)
         message_text = make_purchase_text(purchase_id)

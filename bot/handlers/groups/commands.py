@@ -9,7 +9,7 @@ from bot.states.FormToCreatePurchase import FormToCreatePurchase
 from bot.states.FormToAddCard import FormToAddCard
 from bot.utils.misc.decorators import check_if_user_is_registered, check_if_chat_is_group
 from bot.utils.misc.additional_functions import edit_button_window, make_purchase_text
-from bot.utils.misc.parsers import get_title_and_value_from_text, get_card_bank_from_text
+from bot.utils.misc.parsers import get_value_and_title_from_text, get_card_bank_from_text
 from bot.utils.misc.REGULAR_EXPRESSIONS import VALID_CARD
 
 
@@ -46,7 +46,7 @@ async def add_card(message: types.Message, state: FSMContext):
 @check_if_user_is_registered
 @check_if_chat_is_group
 async def create_purchase(message: types.Message, state: FSMContext):
-    title, value = get_title_and_value_from_text(message.text[17:])
+    title, value = get_value_and_title_from_text(message.text.lstrip("/create_purchase "))
     if title:
         purchase_id = db.add_purchase(title=title, amount=value, group_id=message.chat.id)
         keyboard = CreatePurchase(purchase_id, value, title).keyboard

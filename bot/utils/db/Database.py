@@ -95,16 +95,16 @@ class DataBase:
     # ------------------------------------------------------------------------------------------
     # Methods to work with purchases
 
-    def add_purchase(self, title: str, amount: int, group_id: int):
+    def add_purchase(self, title: str, amount: float, group_id: int):
         purchase = Purchase(title, amount)
         purchase_id = str(self.purchases.insert_one(vars(purchase)).inserted_id)
-        self.groups.update_one({"group_id": group_id}, {"$push": {"purchases": [title, purchase_id]}})
+        self.groups.update_one({"group_id": group_id}, {"$push": {"purchases": purchase_id}})
         return purchase_id
 
-    def delete_purchase(self, purchase_id: str, group_id: int = None, title: str = None):
+    def delete_purchase(self, purchase_id: str, group_id: int = None):
         self.purchases.delete_one({"_id": ObjectId(purchase_id)})
         if group_id:
-            self.groups.update_one({"group_id": group_id}, {"$pull": {"purchases": [title, purchase_id]}})
+            self.groups.update_one({"group_id": group_id}, {"$pull": {"purchases": purchase_id}})
 
     def get_purchase(self, purchase_id: str):
         return self.purchases.find_one({"_id": ObjectId(purchase_id)})
@@ -123,7 +123,7 @@ class DataBase:
     def remove_user_as_payer(self, user, purchase_id: str):
         return self.purchases.update_one({"_id": ObjectId(purchase_id)}, {"$pull": {"payers": user}}).upserted_id
 
-    def join_to_purchase_as_buyer(self, user, amount_of_money_spent: int, purchase_id: str):
+    def join_to_purchase_as_buyer(self, user, amount_of_money_spent: float, purchase_id: str):
         user_id = user[0]
         full_name = user[1]
         return self.purchases.update_one({"_id": ObjectId(purchase_id)}, {"$set": {"buyers." + str(user_id): [amount_of_money_spent, full_name]}}).upserted_id
@@ -131,18 +131,4 @@ class DataBase:
     def remove_user_as_buyer(self, telegram_id: int, purchase_id: str):
         return self.purchases.update_one({"_id": ObjectId(purchase_id)}, {"$unset": {"buyers."+str(telegram_id): ""}}).upserted_id
 
-    # def get_purchase_amount(self, purchase_id: str) -> int:
-    #     return self.purchases.find_one({"_id": ObjectId(purchase_id)}, {"amount": True})["amount"]
-    #
-    # def get_all_buyers(self, purchase_id: str) -> dict:
-    #     buyers = dict()
-    #     for v in self.purchases.find_one({"_id": ObjectId(purchase_id)})["buyers"].values():
-    #         buyers[v[1]] = v[0]
-    #     return buyers
-    #
-    # def get_all_payers(self, purchase_id: str) -> dict:
-    #     payers = dict()
-    #     for i in self.purchases.find_one({"_id": ObjectId(purchase_id)}, {"payers": True})["payers"]:
-    #         payers[i[1]] = 0
-    #     return payers
     # ------------------------------------------------------------------------------------------

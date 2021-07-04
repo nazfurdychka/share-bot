@@ -5,7 +5,6 @@ from aiogram.types import Message
 
 import re
 from .REGULAR_EXPRESSIONS import VALID_CARD, VALUE_AND_TITLE
-# valid_card_template_with_bin = r"(\d{6})\d{10}|(\d{4}( )\d{2})\d{2}( \d{4}){2}"
 
 
 def make_user_from_msg(msg: Message) -> User:
@@ -28,16 +27,16 @@ def get_card_from_text(text: str) -> str:
 def get_card_bank_from_text(text: str) -> tuple[str, str]:
     match = re.match(VALID_CARD, text)
     if match:
-        card, bank = match.group(1).replace(" ", ""), match.group(3).rstrip()
+        card, bank = str(match.group(1).replace(" ", "")), str(match.group(3).replace("/", "").replace("`", "").rstrip())
     else:
         card, bank = None, None
     return card, bank
 
 
-def get_title_and_value_from_text(text: str):
+def get_value_and_title_from_text(text: str):
     match = re.match(VALUE_AND_TITLE, text)
     if match:
-        value = int(match.group(1))
+        value = float(match.group(1))
         title = match.group(2)
         return title, value
     else:
@@ -45,7 +44,7 @@ def get_title_and_value_from_text(text: str):
 
 
 def get_buyers_payers_amount_from_purchase(purchase: dict):
-    buyers_db = purchase["buyers"]
+    buyers_db = purchase.get("buyers", dict())
     buyers = dict()
     i = 1
     for value, key in buyers_db.values():
@@ -53,5 +52,6 @@ def get_buyers_payers_amount_from_purchase(purchase: dict):
             key += f" {str(i)}"
             i += 1
         buyers[key] = value
-    payers = [x for _, x in purchase["payers"]]
+    payers = [x for _, x in purchase.get("payers", [])]
     amount = purchase["amount"]
+    return buyers, payers, amount

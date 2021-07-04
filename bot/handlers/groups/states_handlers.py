@@ -17,7 +17,7 @@ from bot.utils.misc.REGULAR_EXPRESSIONS import VALID_CARD
 @dp.message_handler(state=FormToAddCard.card)
 @check_if_user_is_registered
 async def enter_card(message: types.Message, state: FSMContext):
-    card, bank = get_card_bank_from_text(message.text[10:])
+    card, bank = get_card_bank_from_text(message.text)
     if card:
         data = await state.get_data()
         user_id = data["telegram_id"]
@@ -43,7 +43,7 @@ async def cost(message: types.Message, state: FSMContext):
     data = await state.get_data()
     name = data["title"]
     try:
-        amount = int(message.text)
+        amount = float(message.text)
         if amount <= 0:
             raise ValueError
     except ValueError:
@@ -63,9 +63,9 @@ async def join_as_buyer_enter_amount(message: types.Message, state: FSMContext):
     purchase_id, amount_max = data["purchase_id"], data["amount_max"]
     call: types.CallbackQuery = data["call"]
     purchase = db.get_purchase(purchase_id)
-    buyers_sum = sum([x for x, _ in purchase["buyers"].values()])
+    buyers_sum = sum([x for x, _ in purchase.get("buyers", dict()).values()])
     try:
-        amount = int(message.text)
+        amount = float(message.text)
         if amount <= 0:
             raise ValueError
     except ValueError:
