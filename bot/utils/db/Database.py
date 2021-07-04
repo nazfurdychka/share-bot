@@ -35,10 +35,10 @@ class DataBase:
     # ------------------------------------------------------------------------------------------
     # Methods to work with user cards
 
-    def add_user_card(self, telegram_id: int, card: int, bank: str = ''):
+    def add_user_card(self, telegram_id: int, card: str, bank: str = ''):
         self.users.update_one({"telegram_id": telegram_id}, {"$set": {"cards." + str(card): bank}})
 
-    def del_user_card(self, telegram_id: int, card: int):
+    def del_user_card(self, telegram_id: int, card: str):
         self.users.update_one({"telegram_id": telegram_id}, {"$unset": {"cards." + str(card): ""}})
 
     def get_user_cards(self, telegram_id: int) -> dict:
@@ -47,7 +47,7 @@ class DataBase:
         except AttributeError:
             return dict()
 
-    def get_cards_from_group(self, group_id: int): # -> Dict[str, Dict[int, str]]:
+    def get_cards_from_group(self, group_id: int):  # -> Dict[str, Dict[int, str]]:
         _, full_names, telegram_ids, cards = self._get_users_with_cards_from_group(group_id)
         list_of_users = dict()
         for full_name, telegram_id, user_cards in zip(full_names, telegram_ids, cards):
