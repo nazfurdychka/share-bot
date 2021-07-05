@@ -1,5 +1,3 @@
-import re
-
 from aiogram import types
 from aiogram.dispatcher import FSMContext
 from loader import dp, db
@@ -11,7 +9,6 @@ from bot.states.FormToJoinAsBuyer import FormToJoinAsBuyer
 from bot.utils.misc.decorators import check_if_user_is_registered
 from bot.utils.misc.parsers import get_card_bank_from_text
 from bot.utils.misc.additional_functions import edit_button_window, make_purchase_text
-from bot.utils.misc.REGULAR_EXPRESSIONS import VALID_CARD
 
 
 @dp.message_handler(state=FormToAddCard.card)
@@ -32,7 +29,7 @@ async def enter_card(message: types.Message, state: FSMContext):
 @dp.message_handler(state=FormToCreatePurchase.title)
 @check_if_user_is_registered
 async def title(message: types.Message, state: FSMContext):
-    await state.update_data(title=message.text)
+    await state.update_data(title=message.text.replace("`", '').replace("/", '').replace("<", '').replace('>', ''))
     await FormToCreatePurchase.next()
     await message.reply("Please, enter the cost of this purchase:")
 
@@ -50,7 +47,7 @@ async def cost(message: types.Message, state: FSMContext):
         await message.reply("Wrong value! Try again.")
         return
     purchase_id = db.add_purchase(title=name, amount=amount, group_id=message.chat.id)
-    keyboard = CreatePurchase(purchase_id, amount, name).keyboard
+    keyboard = CreatePurchase(purchase_id, amount).keyboard
     message_text = make_purchase_text(purchase_id)
     await message.answer(text=message_text, parse_mode="markdown", reply_markup=keyboard)
     await state.finish()
@@ -69,11 +66,11 @@ async def join_as_buyer_enter_amount(message: types.Message, state: FSMContext):
         if amount <= 0:
             raise ValueError
     except ValueError:
-        await message.reply("Wrong value!")
+        await message.reply("Wrong value! Press the button to try again.")
         await state.finish()
         return
     if amount+buyers_sum > amount_max:
-        await message.reply(f"That is too much! Cost of the purchase was only {amount_max}.\n")
+        await message.reply(f"That is too much! Cost of the purchase was only {amount_max}. Press the button to try again.\n")
         await state.finish()
         return
     user = (message.from_user.id, message.from_user.full_name)

@@ -87,8 +87,10 @@ def make_calculate_text(result: dict) -> str:
 
 def help_text() -> str:
     text = "Groups commands: \n" \
-           "/manage_cards - here you can add your cards and see another cards \n" \
-           "/create_purchase - use this command if you want to distribute money \n" \
-           "/get_all_purchases - will help you to get all purchases that you created \n" \
-           "/add_card - if you want me to add your card"
+           "/manage_cards - use to add your cards and see other people's cards \n" \
+           "/create_purchase - use to add purchase \n" \
+           "/create_purchase [cost] [title] - to do it quicker\n" \
+           "/get_all_purchases - use to get all purchases in this group \n" \
+           "/add_card - use to add card \n" \
+           "/add_card [card_number] [bank_name](optional) - to do it quicker"
     return text

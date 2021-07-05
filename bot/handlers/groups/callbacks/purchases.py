@@ -17,7 +17,7 @@ async def show_purchase_button(call: types.CallbackQuery):
     purchase = db.get_purchase(purchase_id)
     if purchase:
         value, title = purchase.get("amount"), purchase.get("title")
-        keyboard = CreatePurchase(purchase_id, value, title).keyboard
+        keyboard = CreatePurchase(purchase_id, value).keyboard
         text = make_purchase_text(purchase_id)
         await call.message.answer(text=text, reply_markup=keyboard, parse_mode="markdown")
     else:
@@ -28,9 +28,10 @@ async def show_purchase_button(call: types.CallbackQuery):
 @dp.callback_query_handler(filters.Regexp(DELETE_PURCHASE), state='*')
 async def delete_purchase_button(call: types.CallbackQuery):
     purchase_id = call.data.split()[1]
+    title = db.get_purchase(purchase_id).get("title")
     db.delete_purchase(purchase_id=purchase_id, group_id=call.message.chat.id)
     await call.answer("Purchase was deleted!")
-    await call.message.edit_text(text="Deleted!")
+    await call.message.edit_text(text=f"Purchase `{title}` was deleted.", parse_mode="markdown")
 
 
 @dp.callback_query_handler(filters.Regexp(JOIN_AS_BUYER), state='*')

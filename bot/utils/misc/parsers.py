@@ -1,5 +1,3 @@
-from loader import db
-
 from ..db.User import User
 from aiogram.types import Message
 

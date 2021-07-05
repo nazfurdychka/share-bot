@@ -8,4 +8,3 @@ class FormToJoinAsBuyer(StatesGroup):
     message: types.Message
     call: types.CallbackQuery
     purchase_id: str
-

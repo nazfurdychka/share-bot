@@ -1,5 +1,3 @@
-import re
-
 from aiogram import types
 from loader import dp, db
 from aiogram.dispatcher import FSMContext
@@ -10,7 +8,6 @@ from bot.states.FormToAddCard import FormToAddCard
 from bot.utils.misc.decorators import check_if_user_is_registered, check_if_chat_is_group
 from bot.utils.misc.additional_functions import edit_button_window, make_purchase_text
 from bot.utils.misc.parsers import get_value_and_title_from_text, get_card_bank_from_text
-from bot.utils.misc.REGULAR_EXPRESSIONS import VALID_CARD
 
 
 @dp.message_handler(commands="manage_cards")
@@ -49,7 +46,7 @@ async def create_purchase(message: types.Message, state: FSMContext):
     title, value = get_value_and_title_from_text(message.text.lstrip("/create_purchase "))
     if title:
         purchase_id = db.add_purchase(title=title, amount=value, group_id=message.chat.id)
-        keyboard = CreatePurchase(purchase_id, value, title).keyboard
+        keyboard = CreatePurchase(purchase_id, value).keyboard
         message_text = make_purchase_text(purchase_id)
         await message.answer(text=message_text, parse_mode="markdown", reply_markup=keyboard)
     else:
