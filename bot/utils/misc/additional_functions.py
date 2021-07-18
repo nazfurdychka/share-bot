@@ -93,5 +93,5 @@ def help_text() -> str:
            "/create_purchase [cost] [title] - to do it quicker\n" \
            "/get_all_purchases - use to get all purchases in this group \n" \
            "/add_card - use to add card \n" \
-           "/add_card [card_number] [bank_name](optional) - to do it quicker"
+           "/add_card [card_number] [bank_name](optional) - to do it quicker\n"
     return text
