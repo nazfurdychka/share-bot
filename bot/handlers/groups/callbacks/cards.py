@@ -25,14 +25,14 @@ async def add_card_button(call: types.CallbackQuery, state: FSMContext):
 @dp.callback_query_handler(text="edit_cards", state='*')
 @check_if_user_is_registered
 async def edit_cards_button(call: types.CallbackQuery):
-    keyboard = UsersListKeyboard(call.message.chat.id).keyboard
+    keyboard = await UsersListKeyboard(call.message.chat.id).get_keyboard()
     await call.message.edit_text(text="Whose card(s) to edit:", reply_markup=keyboard)
 
 
 @dp.callback_query_handler(text="back_to_cards", state='*')
 @check_if_user_is_registered
 async def back_to_cards_button(call: types.CallbackQuery):
-    output, keyboard = edit_button_window(chat_id=call.message.chat.id)
+    output, keyboard = await edit_button_window(chat_id=call.message.chat.id)
     await call.message.edit_text(text="Card list:\n" + output, reply_markup=keyboard, parse_mode="markdown")
 
 
@@ -56,7 +56,7 @@ async def open_delete_window_button(call: types.CallbackQuery):
 async def delete_user_card_button(call: types.CallbackQuery):
     user_id, card_name = call.data.split()[1], call.data.split()[2]
     db.del_user_card(telegram_id=int(user_id), card=card_name)
-    res, keyboard = edit_button_window(chat_id=call.message.chat.id)
+    res, keyboard = await edit_button_window(chat_id=call.message.chat.id)
     await call.message.delete()
     await call.message.answer(text="Card list:\n" + res, reply_markup=keyboard, parse_mode="markdown")
 
@@ -64,5 +64,5 @@ async def delete_user_card_button(call: types.CallbackQuery):
 @dp.callback_query_handler(text="back_to_users", state='*')
 @check_if_user_is_registered
 async def information_about_cards(call: types.CallbackQuery):
-    keyboard = UsersListKeyboard(call.message.chat.id).keyboard
+    keyboard = await UsersListKeyboard(call.message.chat.id).get_keyboard()
     await call.message.edit_text(text="Whose card(s) to edit:", reply_markup=keyboard)

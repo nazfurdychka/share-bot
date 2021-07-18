@@ -14,7 +14,7 @@ from bot.utils.misc.parsers import get_value_and_title_from_text, get_card_bank_
 @check_if_user_is_registered
 @check_if_chat_is_group
 async def manage_cards(message: types.Message):
-    res, keyboard = edit_button_window(chat_id=message.chat.id)
+    res, keyboard = await edit_button_window(chat_id=message.chat.id)
     await message.answer(text="Card list:\n" + res, reply_markup=keyboard, parse_mode="markdown")
 
 
@@ -31,7 +31,7 @@ async def add_card(message: types.Message, state: FSMContext):
         card, bank = get_card_bank_from_text(message.text[10:])
         if card:
             db.add_user_card(message.from_user.id, card, bank)
-            output, keyboard = edit_button_window(chat_id=message.chat.id)
+            output, keyboard = await edit_button_window(chat_id=message.chat.id)
             await message.answer(text="Card list:\n" + output, reply_markup=keyboard, parse_mode="markdown")
             return
         else:

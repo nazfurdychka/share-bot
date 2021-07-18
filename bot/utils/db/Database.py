@@ -1,3 +1,5 @@
+import asyncio
+
 import pymongo
 from .User import User
 from .Purchase import Purchase
@@ -47,14 +49,14 @@ class DataBase:
         except AttributeError:
             return dict()
 
-    def get_cards_from_group(self, group_id: int):  # -> Dict[str, Dict[int, str]]:
-        _, full_names, telegram_ids, cards = self._get_users_with_cards_from_group(group_id)
+    async def get_cards_from_group(self, group_id: int):  # -> Dict[str, Dict[int, str]]:
+        _, full_names, telegram_ids, cards = await self._get_users_with_cards_from_group(group_id)
         list_of_users = dict()
         for full_name, telegram_id, user_cards in zip(full_names, telegram_ids, cards):
             list_of_users[(full_name, telegram_id)] = user_cards
         return list_of_users
 
-    def _get_users_with_cards_from_group(self, group_id: int):  # -> list[int]:
+    async def _get_users_with_cards_from_group(self, group_id: int):  # -> list[int]:
         object_ids = list()
         full_names = list()
         telegram_ids = list()
@@ -63,8 +65,9 @@ class DataBase:
             user_telegram_id = user["telegram_id"]
             user_object_id = user["_id"]
             user_full_name = user["full_name"]
+            member = await loader.bot.get_chat_member(chat_id=group_id, user_id=user_telegram_id)
 
-            if loader.bot.get_chat_member(chat_id=group_id, user_id=user_telegram_id):
+            if member["status"] in ("member", "creator", "administrator"):
                 user_cards = user["cards"]
                 full_names.append(user_full_name)
                 object_ids.append(user_object_id)
@@ -72,8 +75,8 @@ class DataBase:
                 cards.append(user_cards)
         return object_ids, full_names, telegram_ids, cards
 
-    def get_user_name_from_group(self, group_id: int):
-        _, full_names, telegram_ids, _ = self._get_users_with_cards_from_group(group_id)
+    async def get_user_name_from_group(self, group_id: int):
+        _, full_names, telegram_ids, _ = await self._get_users_with_cards_from_group(group_id)
         return zip(full_names, telegram_ids)
 
     # ------------------------------------------------------------------------------------------
