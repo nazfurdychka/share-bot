@@ -5,9 +5,10 @@ from bot.keyboards.inline.CardsKeyboards.UserCardsKeyboard import UserCard
 from bot.utils.misc.parsers import get_buyers_payers_amount_from_purchase
 
 
-def edit_button_window(chat_id: int):
+async def edit_button_window(chat_id: int):
     keyboard = EditButton.keyboard
-    cards = db.get_cards_from_group(group_id=chat_id)
+    cards = await db.get_cards_from_group(group_id=chat_id)
+    print(cards)
     res = str()
     for k in cards.keys():
         res += "\t\t\t" + k[0] + ": \n"

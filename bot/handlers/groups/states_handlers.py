@@ -19,7 +19,7 @@ async def enter_card(message: types.Message, state: FSMContext):
         data = await state.get_data()
         user_id = data["telegram_id"]
         db.add_user_card(user_id, card, bank)
-        output, keyboard = edit_button_window(chat_id=message.chat.id)
+        output, keyboard = await edit_button_window(chat_id=message.chat.id)
         await message.answer(text="Card list:\n" + output, parse_mode="markdown", reply_markup=keyboard)
     else:
         await message.answer("Sorry, this isn't a valid card number. Please, check if you wrote everything correctly. Click /add_card to try again")
