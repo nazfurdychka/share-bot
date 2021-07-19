@@ -10,8 +10,7 @@ def make_user_from_msg(msg: Message) -> User:
     cards = dict()
     username = msg.from_user.username
     full_name = msg.from_user.full_name
-    list_of_purchases = []
-    user = User(user_id, cards, username, full_name, list_of_purchases)
+    user = User(user_id, cards, username, full_name)
     return user
 
 

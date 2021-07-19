@@ -1,12 +1,14 @@
-import asyncio
+import pytz
+from datetime import datetime
 
-import pymongo
+import loader
 from .User import User
 from .Purchase import Purchase
 from .. import config
-import loader
 
+import pymongo
 from bson import ObjectId
+
 
 username = config.DATABASE_USERNAME
 password = config.DATABASE_PASSWORD
@@ -83,7 +85,14 @@ class DataBase:
     # Methods to work with groups
 
     def add_new_group(self, group_id, group_title: str):
-        self.groups.insert_one({"group_id": group_id, "title": group_title, "purchases": []})
+        tz = "Europe/Kiev"
+        timezone = pytz.timezone(tz)
+        self.groups.insert_one({
+            "group_id": group_id,
+            "title": group_title,
+            "when_added": datetime.now(tz=timezone).strftime("%d/%m/%Y, %H:%M:%S"),
+            "purchases": []}
+        )
 
     def delete_group(self, group_id: str):
         purchases = self.groups.find_one({"group_id": group_id}, {"purchases": True})["purchases"]
