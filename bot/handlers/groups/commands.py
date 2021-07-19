@@ -1,6 +1,7 @@
 from aiogram import types
-from loader import dp, db
 from aiogram.dispatcher import FSMContext
+
+from loader import dp, db
 from bot.keyboards.inline.PurchasesKeyboards.PurchaseKeyboard import CreatePurchase
 from bot.keyboards.inline.PurchasesKeyboards.AllPurchasesKeyboard import AllPurchasesKeyboard
 from bot.states.FormToCreatePurchase import FormToCreatePurchase
@@ -18,9 +19,9 @@ async def manage_cards(message: types.Message):
     await message.answer(text="Card list:\n" + res, reply_markup=keyboard, parse_mode="markdown")
 
 
+# @check_if_chat_is_group
 @dp.message_handler(commands="add_card")
 @check_if_user_is_registered
-@check_if_chat_is_group
 async def add_card(message: types.Message, state: FSMContext):
     if len(message.text.split()) == 1:
         await message.answer(text="Enter card number and card bank you want to add (example: XXXX XXXX XXXX XXXX \'bank_name\'):")
